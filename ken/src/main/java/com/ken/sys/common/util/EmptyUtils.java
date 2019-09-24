@@ -37,6 +37,15 @@ public class EmptyUtils {
      * @date: 2019/8/10 21:02
      */
     public static boolean isNullOrEmpty(Object obj){
+        if(obj instanceof String){
+          return   isNullOrEmpty((String)obj);
+        }
+        if(obj instanceof List){
+            return  isNullOrEmpty((List)obj);
+        }
+        if(obj instanceof Map){
+            return isNullOrEmpty((Map) obj);
+        }
         return obj==null;
     }
 

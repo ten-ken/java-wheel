@@ -87,11 +87,7 @@ public class FileOperateUtil {
         Long now = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmssSSS")
                 .format(new Date()));
         
-        //modify by jjxu 2015-09-23 begin
-        //String fileName = name.substring(0, name.lastIndexOf(".")) + "_" + now;
         String fileName = "" + now + "." + type;
-        //modify by jjxu 2015-09-23 end
-
         return fileName;
     }
     
@@ -107,11 +103,7 @@ public class FileOperateUtil {
 
 		Long now = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmssSSS")
 				.format(new Date()));
-		
-		//modify by jjxu 2015-09-23 begin
-		//String fileName = name.substring(0, name.lastIndexOf(".")) + "_" + now;
 		String fileName = icon + now;
-		//modify by jjxu 2015-09-23 end
 
 		if (name.indexOf(".") != -1) {
 			fileName += name.substring(name.lastIndexOf("."));

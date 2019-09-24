@@ -17,7 +17,7 @@ import java.util.*;
  * <li>Company: http://www.jiangqiaotech.com/</li>
  * </ul>
  *
- * @author swc
+ * @author ken
  * @version V1.0
  * @date 2019/3/2 19:55
  */
@@ -33,7 +33,7 @@ public class MapToXmlUtils {
      * @param isAddCDATA 是否加入CDATA
      * @param fileds
      * @return: java.lang.String 
-     * @author: swc
+     * @author: ken
      * @date: 2019/8/28 0028 下午 12:43
     */ 
     public static String generateXml(Map<String, String> parm, boolean isAddCDATA,String ...fileds) {
@@ -69,7 +69,7 @@ public class MapToXmlUtils {
      * @param isAddCDATA 是否加入CDATA
      * @param fileds
      * @return: java.lang.String
-     * @author: swc
+     * @author: ken
      * @date: 2019/8/28 0028 下午 12:43
      */
     public static String generateXmlsort(Map<String, String> parm, boolean isAddCDATA,String ...fileds) {

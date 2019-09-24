@@ -10,6 +10,8 @@
 
 package com.ken.sys.common.entity;
 
+import java.io.Serializable;
+
 /**
  * <ul>
  * <li>Description: 数据字典 Entity</li>
@@ -17,7 +19,7 @@ package com.ken.sys.common.entity;
  * </ul>
  *
  */
-public class SysCode  {
+public class SysCode  implements Serializable {
 
 	private Integer id;
 

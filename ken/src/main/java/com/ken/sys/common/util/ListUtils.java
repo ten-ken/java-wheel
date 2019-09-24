@@ -10,9 +10,8 @@
 
 package com.ken.sys.common.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 /**
  * <ul>
  * <li>Title: ListUtils</li>
@@ -31,7 +30,7 @@ public class ListUtils {
      * @param list
      * @param len
      * @return: java.util.List<java.util.List<org.apache.poi.hssf.record.formula.functions.T>>
-     * @author: swc
+     * @author: ken
      * @date: 2019/8/28 0028 下午 12:59
     */
     public static <T>List<List<T>>  splitList(List<T> list, int len) {
@@ -54,7 +53,7 @@ public class ListUtils {
      * @param list
      * @param keyNames 对象中的字段名称 必须与list的泛型对象属性名一致
      * @return: void
-     * @author: swc
+     * @author: ken
      * @date: 2018/12/26 0026 下午 17:23
      */
     public static <T>void removeNullObj(List<T> list, String ...keyNames) {
@@ -62,13 +61,9 @@ public class ListUtils {
             List<T> error = new ArrayList<T>();
             for (T t:list) {
                 for(String keyName:keyNames){
-                    try{
-                        Object obj = ReflectUtils.getFieldValue(t,keyName);
-                        if (obj == null) {
-                            error.add(t);
-                        }
-                    }catch (Exception ex){
-                        ex.printStackTrace();
+                    Object obj = ReflectUtils.getFieldValue(t,keyName);
+                    if (obj == null) {
+                        error.add(t);
                     }
                 }
             }
@@ -84,10 +79,10 @@ public class ListUtils {
      * @param newV  新值
      * @param flied  字段名称
      * @return: void
-     * @author: swc
+     * @author: ken
      * @date: 2019/1/17 0017 下午 13:57
      */
-    public static <T>void resetFilesValue(List<T> list,String oldV, String newV, String flied) {
+    public static <T>void resetFilesValue(List<T> list,Object oldV, Object newV, String flied) {
         if (!EmptyUtils.isNullOrEmpty(list)) {
             for (int i = 0; i < list.size(); i++) {
                 try {
@@ -110,7 +105,7 @@ public class ListUtils {
      * @param flied
      * @param length
      * @return: void
-     * @author: swc
+     * @author: ken
      * @date: 2019/3/8 0008 上午 11:19
      */
     public static <T>void setFieldLength(List<T> list, String flied,int length) {
@@ -137,7 +132,7 @@ public class ListUtils {
      * @param flied 字段名称
      * @param defaultV 默认值 不能为空
      * @return: boolean
-     * @author: swc
+     * @author: ken
      * @date: 2019/3/14 0014 下午 21:07
      */
     public static <T> boolean checkListField(List<T> list,String  flied,String  ...defaultV) {
@@ -162,7 +157,7 @@ public class ListUtils {
      * @param len 超过多少长度
      * @param fiels 字段
      * @return: java.util.List<T>
-     * @author: swc
+     * @author: ken
      * @date: 2019/8/22 0022 上午 10:30
      */
     public static <T> List<T> esclipseListFiles(List<T> list,Integer len, String ...fiels) {
@@ -181,7 +176,7 @@ public class ListUtils {
      * @param len 超过多少长度
      * @param fiels 字段
      * @return: T
-     * @author: swc
+     * @author: ken
      * @date: 2019/8/22 0022 上午 10:48
      */
     public static <T> T esclipseObjFiles(T t,Integer len, String... fiels) {
@@ -201,5 +196,105 @@ public class ListUtils {
         }finally {
             return t;
         }
+    }
+
+    /**
+     * 功能描述: 获取父节点下的所有子节点（处理单一的list结构 非树结构）
+     * @param resultList 返回的结果集 初始化创建为new ArrayList<T>
+     * @param source 目标源
+     * @param pValue 父节点的值
+     * @param pField 父节点属性字段名
+     * @param selfField 自身属性字段名
+     * @return: java.util.List<T> 
+     * @author: ken
+     * @date: 2019/9/24 0024 上午 11:14
+    */ 
+    public static <T> List<T> findChildNodes(List<T> resultList,List<T> source,Object pValue,String pField, String selfField) {
+        for (T t:source) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (pValue.equals(ReflectUtils.getFieldValue(t,pField))) {
+                //递归遍历下一级
+                findChildNodes(resultList,source, ReflectUtils.getFieldValue(t,selfField),pField,selfField);
+                resultList.add(t);
+            }
+        }
+        return resultList;
+    }
+
+
+    /**
+     * 功能描述: 获取当前节点的所有父节点（处理单一的list结构 非树结构）
+     * @param resultList 返回的结果集 初始化创建为new ArrayList<T>
+     * @param source 处理的数据源
+     * @param selfValue 自身的值
+     * @param pField   父节点的属性字段名
+     * @param selfField 自身的属性字段名
+     * @param containSelf 是否返回包含自己的节点
+     * @return: java.util.List<T>
+     * @author: ken
+     * @date: 2019/9/24 0024 下午 13:57
+    */
+    public static <T> List<T> findParentNodes(List<T> resultList,List<T> source,Object selfValue,String pField, String selfField,boolean containSelf) {
+        List<T> parentNodes = getParentNodes(resultList, source, selfValue, pField, selfField);
+        if(!containSelf && parentNodes.size()>0){
+            parentNodes.remove(parentNodes.size()-1);
+        }
+        return parentNodes;
+    }
+
+    /**
+     * 功能描述:获取当前节点的所有父节点（处理单一的list结构 非树结构）
+     * @param resultList 返回的结果集 初始化创建为new ArrayList<T>
+     * @param source 处理的数据源
+     * @param selfValue 自身的值
+     * @param pField   父节点的属性字段名
+     * @param selfField 自身的属性字段名
+     * @return: java.util.List<T> 
+     * @author: ken
+     * @date: 2019/9/24 0024 下午 13:59
+    */ 
+    private static <T> List<T> getParentNodes(List<T> resultList,List<T> source,Object selfValue,String pField, String selfField) {
+        for (T t:source) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (selfValue.equals(ReflectUtils.getFieldValue(t,selfField))) {
+                //递归遍历下一级
+                getParentNodes(resultList,source, ReflectUtils.getFieldValue(t,pField),pField,selfField);
+                resultList.add(t);
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 功能描述: 获取当前节点的所有兄弟节点
+     * @param source 处理的数据源
+     * @param selfValue 自身的值
+     * @param pField   父节点的属性字段名
+     * @param selfField 自身的属性字段名
+     * @param containSelf 是否返回包含自己的节点
+     * @return: java.util.List<T>
+     * @author: ken
+     * @date: 2019/9/24 0024 下午 14:26
+    */
+    public static <T> List<T> findSiblingNodes(List<T> source,Object selfValue,String pField, String selfField,boolean containSelf) {
+        Set<T> set =new HashSet<T>();
+        T self =null;
+        for (T t:source) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (selfValue.equals(ReflectUtils.getFieldValue(t,selfField))) {
+                self  = t;
+                for (T t1:source) {
+                    if(ReflectUtils.getFieldValue(t,pField).equals(ReflectUtils.getFieldValue(t1,pField))){
+                        System.out.println(ReflectUtils.getFieldValue(t1,"name"));
+                        set.add(t1);
+                    }
+                }
+                break;
+            }
+        }
+        if(!containSelf && set.size()>0){
+            set.remove(self);
+        }
+        return new ArrayList<>(set);
     }
 }

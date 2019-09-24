@@ -229,7 +229,7 @@ public class MapObjUtils {
 
 
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 //        List<A> list =new ArrayList<A>();
 //        A a1= new A("小红",10,new Date());
 //        A a2= new A("金婷",16,new Date());
@@ -263,6 +263,6 @@ public class MapObjUtils {
 //        map.put("age",10);
 //        map.put("birthday",new Date());
 //        A age = MapObjUtils.mapResolveEntity(map, A.class, "age");
-    }
+//    }
 
 }
