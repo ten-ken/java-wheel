@@ -1,4 +1,4 @@
-package util;
+package com.ken.sys.common.util;
 
 import java.io.*;
 import java.net.HttpURLConnection;

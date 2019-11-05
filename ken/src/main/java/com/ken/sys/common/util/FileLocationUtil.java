@@ -1,74 +1,115 @@
-/******************************************************************************
- *
- * 作者（author）：ken
- * 微信（weChat）：mlchao1992
- * 个人博客（website）：
- *
- ******************************************************************************
- * 注意：尊重原创
- *****************************************************************************/
 package com.ken.sys.common.util;
+
 
 import java.util.List;
 
 public class FileLocationUtil {
 
     /**
-     * 功能描述: 设置对象
-     * @param list  集合对象
-     * @param fields    需要设置的字段（数组）
-     * @param webUrl  前缀url
-     * @param subListName 需要处理的子集字段名称（获取集合）
-     * @param subFields 需要处理的子集针对的具体字段
+     * 功能描述: 给数据集合设置文件访问路径
+     * @param lst
+     * @param setNames  需要设置的字段
+     * @param webUrl  访问url
      * @return: java.util.List<T> 
      * @author: swc
-     * @date: 2019/8/6 0006 下午 14:43
+     * @date: 2019/11/5 0005 下午 15:50
     */ 
-    public static <T> List<T> setListFilePath(List<T> list,String[] fields,String webUrl,String subListName,String[] subFields) {
-        if (!EmptyUtils.isNullOrEmpty(list)) {
+    public static <T> List<T> addFilePath(List<T> lst, String[] setNames, String webUrl) {
+        if (!EmptyUtils.isNullOrEmpty(lst)) {
             T baseEntity = null;
-            List<T> listImage = null;
             Object temp = null;
-            for (int j = 0; j < list.size(); j++) {
-                baseEntity = list.get(j);
-                setObjFilePath(baseEntity,fields, webUrl, subListName, subFields);
+            for (int j = 0; j < lst.size(); j++) {
+                baseEntity = lst.get(j);
+                addFilePath(baseEntity,setNames,webUrl);
             }
         }
-        return list;
+        return lst;
     }
 
-    
+
     /**
-     * 功能描述: 处理对象中的文件路径
-     * @param baseEntity 对象/实体
-     * @param fields    处理的实体属性字段名称
-     * @param webUrl    访问前缀
-     * @param subListName 子集合的字段名称
-     * @param subFields 子集合单对象处理的属性字段名称
+     * 功能描述: 给数据对象设置文件访问路径
+     * @param baseEntity
+     * @param setNames  需要设置的字段
+     * @param webUrl  访问url
      * @return: T 
      * @author: swc
-     * @date: 2019/8/6 0006 下午 14:59
+     * @date: 2019/11/5 0005 下午 15:51
     */ 
-    public static <T> T setObjFilePath(T baseEntity,String[] fields, String webUrl, String subListName, String[] subFields) {
-        try{
-            Object temp;
-            List<T> listImage;
-            if (!EmptyUtils.isNullOrEmpty(baseEntity)) {
-                for(String field:fields){
-                    temp = ReflectUtils.getFieldValue(baseEntity, field);
-                    if (!EmptyUtils.isNullOrEmpty(temp)) {
-                        ReflectUtils.setFieldValue(baseEntity, field,webUrl +  temp);
+    public static <T>T addFilePath(T baseEntity, String[] setNames, String webUrl) {
+        if (!EmptyUtils.isNullOrEmpty(baseEntity)) {
+                Object temp = null;
+                for(String setName:setNames){
+                    if (!EmptyUtils.isNullOrEmpty(setName)) {
+                        temp = ReflectUtils.getFieldValue(baseEntity, setName);
+                        if (!EmptyUtils.isNullOrEmpty(temp)) {
+                            ReflectUtils.setFieldValue(baseEntity, setName,webUrl +  temp);
+                        }
                     }
-                }
             }
-            if (!EmptyUtils.isNullOrEmpty(subListName)) {
-                listImage = (List<T>)ReflectUtils.getFieldValue(baseEntity, subListName);
-                setListFilePath(listImage,subFields,webUrl,null,null);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
         }
         return baseEntity;
+    }
+
+    /**
+     * @param lst 给数据集合设置文件访问路径  包含子集
+     * @param setNames lst里面需要设置的字段
+     * @param subName 需要配置的子集字段 名称
+     * @param subSetNames 需要配置的子集字段 对象里面 需要设置的字段名称
+     * @param webUrl 访问url
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> addFilePathContainSub(List<T> lst, String[] setNames, String subName, String[] subSetNames, String webUrl) {
+        if (!EmptyUtils.isNullOrEmpty(lst)) {
+            T baseEntity = null;
+            for (int j = 0; j < lst.size(); j++) {
+                baseEntity = lst.get(j);
+                addFilePath(baseEntity,setNames,webUrl);
+                checkDo(subName, subSetNames, webUrl, baseEntity);
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * @param baseEntity 给数据对象设置文件访问路径  包含子集
+     * @param setNames lst里面需要设置的字段
+     * @param subName 需要配置的子集字段 名称
+     * @param subSetNames 需要配置的子集字段 对象里面 需要设置的字段名称
+     * @param webUrl 访问url
+     * @param <T>
+     * @return
+     */
+    public static <T> T addFilePathContainSub(T baseEntity, String[] setNames, String subName, String[] subSetNames, String webUrl) {
+        if (!EmptyUtils.isNullOrEmpty(baseEntity)) {
+            addFilePath(baseEntity,setNames,webUrl);
+            checkDo(subName, subSetNames, webUrl, baseEntity);
+        }
+        return baseEntity;
+    }
+
+
+    /**
+     * 功能描述: 针对性的处理 文件访问路径(仅支持实体对象 或者 集合)
+     * @param subName  字段名称
+     * @param subSetNames 需要处理的字段名称
+     * @param webUrl 访问url
+     * @param baseEntity  实体对象
+     * @return: void 
+     * @author: swc
+     * @date: 2019/11/5 0005 下午 15:59
+    */ 
+    private static <T> void checkDo(String subName, String[] subSetNames, String webUrl, T baseEntity) {
+        Object subObj;
+        if (!EmptyUtils.isNullOrEmpty(subSetNames)) {
+            subObj = (List<T>)ReflectUtils.getFieldValue(baseEntity, subName);
+            if(subObj instanceof List){
+                addFilePath((List<T>)subObj,subSetNames,webUrl);
+            }else{
+                addFilePath(subObj,subSetNames,webUrl);
+            }
+        }
     }
 
 }

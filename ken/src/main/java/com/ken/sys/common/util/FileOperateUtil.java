@@ -1,9 +1,9 @@
 /******************************************************************************
  *
- * 版权所有：安徽匠桥电子信息有限公司
+ * 版权所有：国家电投芜湖发电有限责任公司
  *
  ******************************************************************************
- * 注意：本内容仅限于安徽匠桥电子信息有限公司内部使用，禁止转发
+ * 注意：本内容仅限于国家电投芜湖发电有限责任公司内部使用，禁止转发
  *****************************************************************************/
 package com.ken.sys.common.util;
 
@@ -13,12 +13,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -79,7 +81,7 @@ public class FileOperateUtil {
      * 
      * @author geloin
      * @date 2012-3-29 下午3:39:53
-     * @param name
+     * @param
      * @return
      */
     public static String getFileName(String type) {
@@ -87,7 +89,11 @@ public class FileOperateUtil {
         Long now = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmssSSS")
                 .format(new Date()));
         
+        //modify by jjxu 2015-09-23 begin
+        //String fileName = name.substring(0, name.lastIndexOf(".")) + "_" + now;
         String fileName = "" + now + "." + type;
+        //modify by jjxu 2015-09-23 end
+
         return fileName;
     }
     
@@ -103,7 +109,11 @@ public class FileOperateUtil {
 
 		Long now = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmssSSS")
 				.format(new Date()));
+
+		//modify by jjxu 2015-09-23 begin
+		//String fileName = name.substring(0, name.lastIndexOf(".")) + "_" + now;
 		String fileName = icon + now;
+		//modify by jjxu 2015-09-23 end
 
 		if (name.indexOf(".") != -1) {
 			fileName += name.substring(name.lastIndexOf("."));
@@ -142,7 +152,7 @@ public class FileOperateUtil {
 	 * @throws Exception
 	 */
 	public static List<Map<String, Object>> upload(HttpServletRequest request,
-			String[] params, Map<String, Object[]> values) throws Exception {
+                                                   String[] params, Map<String, Object[]> values) throws Exception {
 
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 
@@ -207,7 +217,7 @@ public class FileOperateUtil {
 	 */
 	public static Boolean deleteFile(String path, String fileName) {
 		boolean flag = false;
-		File file = new File(path + fileName);  
+		File file = new File(path + fileName);
 	    // 路径为文件且不为空则进行删除  
 	    if (file.isFile() && file.exists()) {  
 	        file.delete();  
@@ -222,13 +232,13 @@ public class FileOperateUtil {
 	 * @author geloin
 	 * @date 2012-5-5 下午12:25:47
 	 * @param request
-	 * @param uploadFolderPath
-	 * @param file
+	 * @param
+	 * @param
 	 * @return
 	 * @throws Exception
 	 */
 	public static String upload(HttpServletRequest request,
-			String uploadFolderPath, MultipartFile file) throws Exception {
+                                String uploadFolderPath, MultipartFile file) throws Exception {
 		// 获取根路
 		String filePath = null;
 		InputStream inputStream = null;
@@ -272,7 +282,7 @@ public class FileOperateUtil {
 	}
 
 	public static String uploadByIcon(HttpServletRequest request,
-			String uploadFolderPath, MultipartFile file, String icon) throws Exception {
+                                      String uploadFolderPath, MultipartFile file, String icon) throws Exception {
 		// 获取根路
 		String filePath = null;
 		InputStream inputStream = null;
@@ -322,12 +332,12 @@ public class FileOperateUtil {
 	 * @param response
 	 * @param storeName
 	 * @param contentType
-	 * @param realName
+	 * @param
 	 * @throws Exception
 	 */
 	public static void download(HttpServletRequest request,
-			HttpServletResponse response, String storeName, String contentType,
-			String downLoadPath) throws Exception {
+                                HttpServletResponse response, String storeName, String contentType,
+                                String downLoadPath) throws Exception {
 		BufferedInputStream bis = null;
 		BufferedOutputStream bos = null;
 		try {
@@ -373,21 +383,31 @@ public class FileOperateUtil {
 		}
 	}
 	
-	public static void show(HttpServletRequest request,HttpServletResponse response, String downLoadPath,String storeName) throws IOException {
+	public static void show(HttpServletRequest request, HttpServletResponse response, String downLoadPath, String storeName) throws IOException {
 		FileInputStream inputStream = null;
+		String reg = "(mp4|flv|avi|rm|rmvb|wmv)";
+		Pattern p = Pattern.compile(reg);
+
 		try {
 			File file = new File(downLoadPath, storeName);
 			if (file.exists()) {
-				long fileLength = file.length();
-				inputStream = new FileInputStream(file);
-				response.setHeader("Content-Length", String.valueOf(fileLength));
-				OutputStream outputStream = response.getOutputStream();
-				byte[] buffer = new byte[2048];
-				int count = 0;
-				while((count = inputStream.read(buffer)) > 0) {
-					outputStream.write(buffer, 0 ,count);
-					outputStream.flush();
+				//判断是否为视频文件
+				boolean boo = p.matcher(file.getName()).find();
+				if(boo){
+					playerVideo(request,response, file);
+				}else{
+					long fileLength = file.length();
+					inputStream = new FileInputStream(file);
+					response.setHeader("Content-Length", String.valueOf(fileLength));
+					OutputStream outputStream = response.getOutputStream();
+					byte[] buffer = new byte[2048];
+					int count = 0;
+					while((count = inputStream.read(buffer)) > 0) {
+						outputStream.write(buffer, 0 ,count);
+						outputStream.flush();
+					}
 				}
+
 			}
 		}catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -399,7 +419,111 @@ public class FileOperateUtil {
 			}
 		}
 	}
-	
+
+	/**
+	 * 解决视频播放不能拖动快进的问题
+	 *
+	 * @param request
+	 * @param response
+	 */
+	public static void playerVideo(HttpServletRequest request, HttpServletResponse response,File file) {
+		BufferedInputStream bis = null;
+		try {
+			if (file.exists()) {
+				long p = 0L;
+				long toLength = 0L;
+				long contentLength = 0L;
+				int rangeSwitch = 0; // 0,从头开始的全文下载；1,从某字节开始的下载（bytes=27000-）；2,从某字节开始到某字节结束的下载（bytes=27000-39000）
+				long fileLength;
+				String rangBytes = "";
+				fileLength = file.length();
+				InputStream ins = new FileInputStream(file);
+				bis = new BufferedInputStream(ins);
+
+				// tell the client to allow accept-ranges
+				response.reset();
+				response.setHeader("Accept-Ranges", "bytes");
+
+				// client requests a file block download start byte
+				String range = request.getHeader("Range");
+				if (range != null && range.trim().length() > 0 && !"null".equals(range)) {
+					response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+					rangBytes = range.replaceAll("bytes=", "");
+					if (rangBytes.endsWith("-")) { // bytes=270000-
+						rangeSwitch = 1;
+						p = Long.parseLong(rangBytes.substring(0, rangBytes.indexOf("-")));
+						contentLength = fileLength - p; // 客户端请求的是270000之后的字节（包括bytes下标索引为270000的字节）
+					} else { // bytes=270000-320000
+						rangeSwitch = 2;
+						String temp1 = rangBytes.substring(0, rangBytes.indexOf("-"));
+						String temp2 = rangBytes.substring(rangBytes.indexOf("-") + 1, rangBytes.length());
+						p = Long.parseLong(temp1);
+						toLength = Long.parseLong(temp2);
+						contentLength = toLength - p + 1; // 客户端请求的是 270000-320000 之间的字节
+					}
+				} else {
+					contentLength = fileLength;
+				}
+
+				// 如果设设置了Content-Length，则客户端会自动进行多线程下载。如果不希望支持多线程，则不要设置这个参数。
+				// Content-Length: [文件的总大小] - [客户端请求的下载的文件块的开始字节]
+				response.setHeader("Content-Length", new Long(contentLength).toString());
+
+				// 断点开始
+				// 响应的格式是:
+				// Content-Range: bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]
+				if (rangeSwitch == 1) {
+					String contentRange = new StringBuffer("bytes ").append(new Long(p).toString()).append("-")
+							.append(new Long(fileLength - 1).toString()).append("/")
+							.append(new Long(fileLength).toString()).toString();
+					response.setHeader("Content-Range", contentRange);
+					bis.skip(p);
+				} else if (rangeSwitch == 2) {
+					String contentRange = range.replace("=", " ") + "/" + new Long(fileLength).toString();
+					response.setHeader("Content-Range", contentRange);
+					bis.skip(p);
+				} else {
+					String contentRange = new StringBuffer("bytes ").append("0-").append(fileLength - 1).append("/")
+							.append(fileLength).toString();
+					response.setHeader("Content-Range", contentRange);
+				}
+
+				String fileName = file.getName();
+				response.setContentType("application/octet-stream");
+				response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
+
+				OutputStream out = response.getOutputStream();
+				int n = 0;
+				long readLength = 0;
+				int bsize = 1024;
+				byte[] bytes = new byte[bsize];
+				if (rangeSwitch == 2) {
+					// 针对 bytes=27000-39000 的请求，从27000开始写数据
+					while (readLength <= contentLength - bsize) {
+						n = bis.read(bytes);
+						readLength += n;
+						out.write(bytes, 0, n);
+					}
+					if (readLength <= contentLength) {
+						n = bis.read(bytes, 0, (int) (contentLength - readLength));
+						out.write(bytes, 0, n);
+					}
+				} else {
+					while ((n = bis.read(bytes)) != -1) {
+						out.write(bytes, 0, n);
+					}
+				}
+				out.flush();
+				out.close();
+				bis.close();
+			}
+		} catch (IOException ie) {
+			// 忽略 ClientAbortException 之类的异常
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * 检查文件大小 MB
 	 * @param fileSize
@@ -455,7 +579,7 @@ public class FileOperateUtil {
 		}		
 	}
 	
-	public static boolean checkFileIfExist2(String downLoadPath,String fileName){
+	public static boolean checkFileIfExist2(String downLoadPath, String fileName){
 		File file = new File(downLoadPath, fileName);
 		if (file.exists()) {
 			return true;
@@ -464,7 +588,7 @@ public class FileOperateUtil {
 		}		
 	}
 	
-	public static void writeJsonToFile(String filePath,String fileName, String jsonStr) throws IOException {
+	public static void writeJsonToFile(String filePath, String fileName, String jsonStr) throws IOException {
 		File newFile = new File(filePath);
 		// 如果文件路径不存在就新建一个
 		if (!newFile.exists()) {
@@ -474,13 +598,13 @@ public class FileOperateUtil {
 		String encoding = "UTF-8";//设置文件的编码！！
 		OutputStreamWriter outstream = new OutputStreamWriter(new FileOutputStream(filePath + fileName), encoding);
 		   
-		PrintWriter writer = new PrintWriter(outstream);  
+		PrintWriter writer = new PrintWriter(outstream);
 		//writer.format(encoding,null);
 		writer.write(jsonStr);  
 		writer.close();  
 	}
 	
-	public static void copyFile(String fromFilePath,String fileName,String toFilePath) throws IOException{
+	public static void copyFile(String fromFilePath, String fileName, String toFilePath) throws IOException {
 		BufferedInputStream bis = null;
 		BufferedOutputStream bos = null;
 		
@@ -514,22 +638,22 @@ public class FileOperateUtil {
 	
 	/**
 	 * 删除目录
-	 * @param dirPath
+	 * @param
 	 */
-    public static void deleteDirectory(String dirPath) {  
-        File fileDir = new File(dirPath);  
+    public static void deleteDirectory(String dirPath) {
+        File fileDir = new File(dirPath);
         
         deleteAllFilesOfDir(fileDir);  
     } 
     
-    private static void deleteAllFilesOfDir(File path) {  
+    private static void deleteAllFilesOfDir(File path) {
         if (!path.exists())  
             return;  
         if (path.isFile()) {  
             path.delete();  
             return;  
         }  
-        File[] files = path.listFiles();  
+        File[] files = path.listFiles();
         for (int i = 0; i < files.length; i++) {  
             deleteAllFilesOfDir(files[i]);  
         }  
@@ -540,25 +664,27 @@ public class FileOperateUtil {
      * 文件大小 单位 MB
      * @param filePath
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
-    public static double getFileSize(String filePath) throws IOException{
-    	FileInputStream fis= null;  
+    public static double getFileSize(String filePath) throws IOException {
+    	FileInputStream fis= null;
 
-    	File f= new File(filePath);  
-        fis= new FileInputStream(f);  
+    	File f= new File(filePath);
+        fis= new FileInputStream(f);
         int fileSize = fis.available();
         
         fis.close(); 
         
         return (double)fileSize/1024/1024;
     }
+
+
 	/**
 	 * 删除指定的Sheet
 	 * @param targetFile  目标文件
 	 * @param sheetName   Sheet名称
 	 */
-	public static void deleteSheet(String targetFile,String sheetName) {
+	public static void deleteSheet(String targetFile, String sheetName) {
 		try {
 			FileInputStream fis = new FileInputStream(targetFile);
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
@@ -572,16 +698,19 @@ public class FileOperateUtil {
 		}
 
 	}
+
 	/**
 	 * 写隐藏/删除后的Excel文件
 	 * @param targetFile  目标文件
 	 * @param wb          Excel对象
 	 * @throws Exception
 	 */
-	public static void fileWrite(String targetFile,XSSFWorkbook wb) throws Exception{
+	public static void fileWrite(String targetFile, XSSFWorkbook wb) throws Exception {
 		FileOutputStream fileOut = new FileOutputStream(targetFile);
 		wb.write(fileOut);
 		fileOut.flush();
 		fileOut.close();
 	}
+
+
 }
