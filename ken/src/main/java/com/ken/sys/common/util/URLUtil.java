@@ -70,6 +70,7 @@ public class URLUtil {
      * @date: 2019/11/5 0005 上午 9:22
      */
     private static String connectAndWriteFile(String url,String path,DataOutputStream out,BufferedReader in,Map<String,String> headConfig)throws Exception {
+        File file = new File(path);
         if(headConfig==null || headConfig.isEmpty()){
             headConfig =defaultconfig;
         }
@@ -83,6 +84,13 @@ public class URLUtil {
         conn.setDoInput(true);
         conn.setUseCaches(false);
         conn.setRequestMethod("POST");
+
+        //20M  大于20M的文件
+        if(file.length()>1024*1024*20){
+//          conn.setChunkedStreamingMode(0);//这个方法可行，但需要注意的是，一些服务器并不支持这种模式。 可以改用 从1.7后引入的新方法  setFixedLengthStreamingMode
+            conn.setFixedLengthStreamingMode(file.length());
+        }
+
         for(String key:headConfig.keySet()){
             conn.setRequestProperty(key, headConfig.get(key));
         }
@@ -94,15 +102,14 @@ public class URLUtil {
         sb1.append("--");
         sb1.append(BOUNDARY);
         sb1.append("\r\n");
-//        sb1.append("Content-Disposition: form-data;name=\"\"");
-//        sb1.append("\r\n");
-//        sb1.append("\r\n");
-//        sb1.append("file");
-//        sb1.append("\r\n");
+        sb1.append("Content-Disposition: form-data;name=\"\"");
+        sb1.append("\r\n");
+        sb1.append("\r\n");
+        sb1.append("file");
+        sb1.append("\r\n");
         out.write(sb1.toString().getBytes());
 
         //添加参数file
-        File file = new File(path);
         StringBuffer sb = new StringBuffer();
         sb.append("--");
         sb.append(BOUNDARY);
@@ -128,11 +135,6 @@ public class URLUtil {
         //flush输出流的缓冲
         out.flush();
         //定义BufferedReader输入流来读取URL的响应
-//        in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//        String line;
-//        while ((line = in.readLine()) != null) {
-//            result += line;
-//        }
         return responseBodyText(conn,in);
     }
 
