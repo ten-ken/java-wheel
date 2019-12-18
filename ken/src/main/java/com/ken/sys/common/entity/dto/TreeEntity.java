@@ -1,4 +1,4 @@
-package com.ken.sys.common.entity;
+package com.ken.sys.common.entity.dto;
 import java.io.Serializable;
 
 /**

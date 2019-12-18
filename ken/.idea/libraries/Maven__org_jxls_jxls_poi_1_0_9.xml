@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jxls:jxls-poi:1.0.9">
+    <CLASSES>
+      <root url="jar://D:/rep/m2/org/jxls/jxls-poi/1.0.9/jxls-poi-1.0.9.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/rep/m2/org/jxls/jxls-poi/1.0.9/jxls-poi-1.0.9-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/rep/m2/org/jxls/jxls-poi/1.0.9/jxls-poi-1.0.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -7,7 +7,7 @@
  *****************************************************************************/
 
 import com.ken.sys.common.entity.Area;
-import com.ken.sys.common.entity.TreeEntity;
+import com.ken.sys.common.entity.dto.TreeEntity;
 import org.junit.Test;
 
 import java.util.ArrayList;

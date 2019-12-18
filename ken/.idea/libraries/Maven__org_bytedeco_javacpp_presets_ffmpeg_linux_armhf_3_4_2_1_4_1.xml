@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-armhf:3.4.2-1.4.1">
+    <CLASSES>
+      <root url="jar://D:/rep/m2/org/bytedeco/javacpp-presets/ffmpeg/3.4.2-1.4.1/ffmpeg-3.4.2-1.4.1-linux-armhf.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/rep/m2/org/bytedeco/javacpp-presets/ffmpeg/3.4.2-1.4.1/ffmpeg-3.4.2-1.4.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/rep/m2/org/bytedeco/javacpp-presets/ffmpeg/3.4.2-1.4.1/ffmpeg-3.4.2-1.4.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
